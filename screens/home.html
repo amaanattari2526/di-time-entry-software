@@ -94,15 +94,17 @@
 <script>
 
 var currentdate,
+    formattedDate,
     interval,
     am_pm,
     entries = [],
     obj = {
         summary: "Other",
         status: "STARTED",
+        entry_date: formattedDate,
         start_time: "00:00:00",
         stop_time: "00:00:00",
-        differece: 0
+        difference: 0
     };
 
  var currentTime = document.getElementById("curr-time");
@@ -115,7 +117,7 @@ var currentdate,
  const runTimer = () => {
 
     currentdate = new Date(); 
-    
+    const month = currentdate.getMonth()+1;
     var datetime = "Last Sync: " + currentdate.getDate() + "/"
                 + (currentdate.getMonth()+1)  + "/" 
                 + currentdate.getFullYear() + " @ "  
@@ -123,7 +125,7 @@ var currentdate,
                 + currentdate.getMinutes() + ":" 
                 + currentdate.getSeconds();
     am_pm = currentdate.getHours() >= 12 ? " PM" : "AM";
-
+    formattedDate = currentdate.getFullYear() + "-" + month + "-" + currentdate.getDay();
     let formattedTime = currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds() + " " + am_pm;
     currentTime.innerText = formattedTime;
    
@@ -139,20 +141,31 @@ var currentdate,
         stopBtn.classList.remove("d-none");
         stopBtn.classList.add("inline-block");
 
-        obj.summary = (summaryTextField.value ? summaryTextField.value : "Ather Activity");
-        obj.start_time = currentTime.innerText;
-        obj.start_time = currentTime.innerText;
-
-        entries.push(obj);
-
         // STORE DATE IN LOCAL STORAGE
         const dataExists = (localStorage.getItem('entries') !== null);
 
         if (dataExists)  {
-           let data = (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
-           setDataSet(weeklyDataSet, data);
-        } else {
+
+           entries= (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
+           
+            obj.summary = (summaryTextField.value ? summaryTextField.value : "Ather Activity");
+            obj.entry_date = formattedDate;
+            obj.start_time = currentTime.innerText;
+            obj.stop_time = currentTime.innerText;
+            entries.push(obj);
             localStorage.setItem("entries", JSON.stringify(entries));
+           
+           setDataSet(weeklyDataSet, entries);
+
+        } else {
+            
+            obj.summary = (summaryTextField.value ? summaryTextField.value : "Ather Activity");
+            obj.entry_date = formattedDate;
+            obj.start_time = currentTime.innerText;
+            obj.stop_time = currentTime.innerText;
+            entries.push(obj);
+            localStorage.setItem("entries", JSON.stringify(entries));
+
             setDataSet(weeklyDataSet, entries);
         }
             
@@ -178,6 +191,7 @@ var currentdate,
               "<tr>" +
                 "<td>" + obj.summary + "</td>" +
                 "<td>" + obj.status + "</td>" +
+                "<td>" + obj.entry_date + "</td>" +
                 "<td>" + obj.start_time + "</td>" +
                 "<td>" + obj.difference + "</td>" +
                 "</tr>" +
