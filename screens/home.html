@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>DawateIslami - Time Entry</title>
+  <link rel = "stylesheet" href = "../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel = "stylesheet" href = "../styles.css" />
+</head>
+
+<body>
+
+    <div>
+        <div class="gradient-bg py-3 px-3">
+           
+            <div class="d-flex align-items-center">
+                <input name="summary" id="summary" placeholder="What you have done ?" class="form-control-sm form-control work-field" type="text" />
+                <div class="ml-auto text-right time-action-bar">
+                    <span class="px-3 bold timer" id="curr-time">00:00:00</span>
+                <button id="start-btn" class="btn btn-sm btn-primary px-4">Start</button>
+                <button id="stop-btn" class="btn btn-sm btn-danger px-4 d-none">Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-content-wrapper">
+            <div class="todays-entries p-3">
+                <div class="data-table">
+                    
+                    <div class="weekly-data mb-3">
+                        <h6>This Week</h6>
+
+                        <div class="title">Today</div>
+                        <table border="1" draggable="true" id="w-dataset">
+                            
+                            <tbody id="no-records">
+                                <tr>
+                                    <td align="center">No records found!</td>
+                                </tr>
+                            </tbody>
+
+                           
+
+                        </table>
+                    </div>
+
+                    <div class="monthly-data mb-3">
+                        <h6>This Month</h6>
+
+                        <div class="title">Today</div>
+                        <table border="1" draggable="true">
+                            
+                            <tbody>
+                                <tr>
+                                    <td>Title</td>
+                                    <td>Time</td>
+                                    <td>Order</td>
+                                </tr>
+                            </tbody>
+
+                            <tbody>
+                                <tr>
+                                    <td>Title</td>
+                                    <td>Time</td>
+                                    <td>Order</td>
+                                </tr>
+                            </tbody>
+
+                            <tbody>
+                                <tr>
+                                    <td>Title</td>
+                                    <td>Time</td>
+                                    <td>Order</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+<!-- <h1>Home</h1>
+
+<div>
+  Congratulations <span id="username">test</span>, You've made it to a secure page using Okta.
+</div>
+
+<div>
+  <button id="logout-button">Logout</button>
+</div> -->
+
+<script>
+
+var currentdate,
+    interval,
+    am_pm,
+    entries = [],
+    obj = {
+        summary: "Other",
+        status: "STARTED",
+        start_time: "00:00:00",
+        stop_time: "00:00:00",
+        differece: 0
+    };
+
+ var currentTime = document.getElementById("curr-time");
+ var startBtn = document.getElementById("start-btn");
+ var stopBtn = document.getElementById("stop-btn");
+ var summaryTextField = document.getElementById("summary");
+ var weeklyDataSet = document.getElementById("w-dataset"); // WEEKLY DATA;
+
+ 
+ const runTimer = () => {
+
+    currentdate = new Date(); 
+    
+    var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+    am_pm = currentdate.getHours() >= 12 ? " PM" : "AM";
+
+    let formattedTime = currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds() + " " + am_pm;
+    currentTime.innerText = formattedTime;
+   
+ }
+
+ /* Start Button Click Listener */
+    startBtn.addEventListener("click", () => {
+
+        runTimer();
+        interval = setInterval(runTimer, 1000);
+
+        startBtn.classList.add("d-none");
+        stopBtn.classList.remove("d-none");
+        stopBtn.classList.add("inline-block");
+
+        obj.summary = (summaryTextField.value ? summaryTextField.value : "Ather Activity");
+        obj.start_time = currentTime.innerText;
+        obj.start_time = currentTime.innerText;
+
+        entries.push(obj);
+
+        // STORE DATE IN LOCAL STORAGE
+        const dataExists = (localStorage.getItem('entries') !== null);
+
+        if (dataExists)  {
+           let data = (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
+           setDataSet(weeklyDataSet, data);
+        } else {
+            localStorage.setItem("entries", JSON.stringify(entries));
+            setDataSet(weeklyDataSet, entries);
+        }
+            
+        
+    });
+ /* End Button Click Listener */
+
+
+ /* Render DATASET */
+ const setDataSet = (dataSetId, data) => {
+
+    if(data.length > 0) {
+        for(var i = 0; i < data.length; i++) {
+            let obj = data[i];
+            dataSetId.innerHTML += tbleRow(obj)
+        }
+    }
+
+ }
+
+ const tbleRow = (obj) => {
+    return  "<tbody>" +
+              "<tr>" +
+                "<td>" + obj.summary + "</td>" +
+                "<td>" + obj.status + "</td>" +
+                "<td>" + obj.start_time + "</td>" +
+                "<td>" + obj.difference + "</td>" +
+                "</tr>" +
+             "</tbody>"
+ }
+ /* Render DATASET */
+
+  /* Stop Button Click Listener */
+  stopBtn.addEventListener("click", () => {
+        clearInterval(interval);
+        
+        startBtn.classList.add("d-inline-block");
+        startBtn.classList.remove("d-none");
+        stopBtn.classList.add("d-none");
+        stopBtn.classList.remove("d-inline-block");
+
+        entries = JSON.parse(localStorage.getItem("entries"));
+        console.log(entries);
+
+        currentTime.innerText="00:00:00";
+    });
+ /* Stop Button Click Listener */
+
+  window.addEventListener('DOMContentLoaded', () => {
+
+    
+
+    window.electron.getUser().then((user) => {
+      document.getElementById("username").innerHTML = `${user.profile.firstName} ${user.profile.lastName}`
+    });
+  });
+
+  document.getElementById('logout-button').addEventListener('click', () => {
+    window.electron.logout();
+  });
+</script>
+</body>
+</html>
