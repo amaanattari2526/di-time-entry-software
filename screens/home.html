@@ -2,23 +2,24 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>DawateIslami - Time Entry</title>
-  <link rel = "stylesheet" href = "../bower_components/bootstrap/dist/css/bootstrap.min.css" />
-  <link rel = "stylesheet" href = "../styles.css" />
+    <meta charset="UTF-8">
+    <title>DawateIslami - Time Entry</title>
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../styles.css" />
 </head>
 
 <body>
 
     <div>
         <div class="gradient-bg py-3 px-3">
-           
+
             <div class="d-flex align-items-center">
-                <input name="summary" id="summary" placeholder="What you have done ?" class="form-control-sm form-control work-field" type="text" />
+                <input name="summary" id="summary" placeholder="What you have done ?"
+                    class="form-control-sm form-control work-field" type="text" />
                 <div class="ml-auto text-right time-action-bar">
                     <span class="px-3 bold timer" id="curr-time">00:00:00</span>
-                <button id="start-btn" class="btn btn-sm btn-primary px-4">Start</button>
-                <button id="stop-btn" class="btn btn-sm btn-danger px-4 d-none">Stop</button>
+                    <button id="start-btn" class="btn btn-sm btn-primary px-4">Start</button>
+                    <button id="stop-btn" class="btn btn-sm btn-danger px-4 d-none">Stop</button>
                 </div>
             </div>
         </div>
@@ -26,20 +27,22 @@
         <div class="data-content-wrapper">
             <div class="todays-entries p-3">
                 <div class="data-table">
-                    
+
                     <div class="weekly-data mb-3">
                         <h6>This Week</h6>
 
-                        <div class="title">Today</div>
+                        <div class="title float-start w-100">
+                            <h6 class="float-start">Today</h6> <div class="ml-auto float-end"> <span id="total-hours"></span> <span id="total-minutes"></span> </div> 
+                        </div>
                         <table border="1" draggable="true" id="w-dataset">
-                            
+
                             <tbody id="no-records">
                                 <tr>
                                     <td align="center">No records found!</td>
                                 </tr>
                             </tbody>
 
-                           
+
 
                         </table>
                     </div>
@@ -49,7 +52,7 @@
 
                         <div class="title">Today</div>
                         <table border="1" draggable="true">
-                            
+
                             <tbody>
                                 <tr>
                                     <td>Title</td>
@@ -81,7 +84,7 @@
         </div>
 
     </div>
-<!-- <h1>Home</h1>
+    <!-- <h1>Home</h1>
 
 <div>
   Congratulations <span id="username">test</span>, You've made it to a secure page using Okta.
@@ -91,142 +94,247 @@
   <button id="logout-button">Logout</button>
 </div> -->
 
-<script>
+    <script>
 
-var currentdate,
-    formattedDate,
-    interval,
-    am_pm,
-    entries = [],
-    obj = {
-        summary: "Other",
-        status: "STARTED",
-        entry_date: formattedDate,
-        start_time: "00:00:00",
-        stop_time: "00:00:00",
-        difference: 0
-    };
+        var currentdate,
+            formattedDate,
+            interval,
+            am_pm,
+            entries = [],
+            obj = {
+                summary: "Other",
+                status: "STARTED",
+                entry_date: "",
+                start_time: "00:00:00",
+                stop_time: "",
+                difference: 0
+            },
+            totalMinutes = 0,
+            storage = (localStorage.getItem('entries') !== null);
 
- var currentTime = document.getElementById("curr-time");
- var startBtn = document.getElementById("start-btn");
- var stopBtn = document.getElementById("stop-btn");
- var summaryTextField = document.getElementById("summary");
- var weeklyDataSet = document.getElementById("w-dataset"); // WEEKLY DATA;
+        var currentTime = document.getElementById("curr-time");
+        var startBtn = document.getElementById("start-btn");
+        var stopBtn = document.getElementById("stop-btn");
+        var summaryTextField = document.getElementById("summary");
+        var weeklyDataSet = document.getElementById("w-dataset"); // WEEKLY DATA;
 
- 
- const runTimer = () => {
-
-    currentdate = new Date(); 
-    const month = currentdate.getMonth()+1;
-    var datetime = "Last Sync: " + currentdate.getDate() + "/"
-                + (currentdate.getMonth()+1)  + "/" 
-                + currentdate.getFullYear() + " @ "  
-                + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
-    am_pm = currentdate.getHours() >= 12 ? " PM" : "AM";
-    formattedDate = currentdate.getFullYear() + "-" + month + "-" + currentdate.getDay();
-    let formattedTime = currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds() + " " + am_pm;
-    currentTime.innerText = formattedTime;
-   
- }
-
- /* Start Button Click Listener */
-    startBtn.addEventListener("click", () => {
-
-        runTimer();
-        interval = setInterval(runTimer, 1000);
-
-        startBtn.classList.add("d-none");
-        stopBtn.classList.remove("d-none");
-        stopBtn.classList.add("inline-block");
-
-        // STORE DATE IN LOCAL STORAGE
-        const dataExists = (localStorage.getItem('entries') !== null);
-
-        if (dataExists)  {
-
-           entries= (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
-           
-            obj.summary = (summaryTextField.value ? summaryTextField.value : "Ather Activity");
-            obj.entry_date = formattedDate;
-            obj.start_time = currentTime.innerText;
-            obj.stop_time = currentTime.innerText;
-            entries.push(obj);
-            localStorage.setItem("entries", JSON.stringify(entries));
-           
-           setDataSet(weeklyDataSet, entries);
-
-        } else {
-            
-            obj.summary = (summaryTextField.value ? summaryTextField.value : "Ather Activity");
-            obj.entry_date = formattedDate;
-            obj.start_time = currentTime.innerText;
-            obj.stop_time = currentTime.innerText;
-            entries.push(obj);
-            localStorage.setItem("entries", JSON.stringify(entries));
-
-            setDataSet(weeklyDataSet, entries);
-        }
-            
         
-    });
- /* End Button Click Listener */
 
+        const runTimer = () => {
 
- /* Render DATASET */
- const setDataSet = (dataSetId, data) => {
+            currentdate = new Date();
+            
+            const month = currentdate.getMonth() + 1;
+            var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth() + 1) + "/"
+                + currentdate.getFullYear() + " @ "
+                + currentdate.getHours() + ":"
+                + currentdate.getMinutes() + ":"
+                + currentdate.getSeconds();
+            am_pm = currentdate.getHours() >= 12 ? " PM" : "AM";
+            formattedDate = currentdate.getFullYear() + "-" + month + "-" + currentdate.getDay();
+            
+            let hours = currentdate.getHours() > 12 ? currentdate.getHours() - 12 : currentdate.getHours();
+            hours = hours <= 9 ? '0' + hours : hours;
+            let minutes = currentdate.getMinutes() <= 9 ? '0' + currentdate.getMinutes() : currentdate.getMinutes();
+            let seconds = currentdate.getSeconds() <= 9 ? '0' + currentdate.getSeconds() : currentdate.getSeconds();
 
-    if(data.length > 0) {
-        for(var i = 0; i < data.length; i++) {
-            let obj = data[i];
-            dataSetId.innerHTML += tbleRow(obj)
+            let formattedTime = hours + ":" + minutes + ":" + seconds + " " + am_pm;
+            currentTime.innerText = formattedTime;
+
         }
-    }
 
- }
+        /* Start Button Click Listener */
+        startBtn.addEventListener("click", () => {
 
- const tbleRow = (obj) => {
-    return  "<tbody>" +
-              "<tr>" +
+            runTimer();
+            interval = setInterval(runTimer, 1000);
+
+            startBtn.classList.add("d-none");
+            stopBtn.classList.remove("d-none");
+            stopBtn.classList.add("inline-block");
+
+            // STORE DATE IN LOCAL STORAGE
+            entries = (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
+
+            if (entries) {
+
+                obj.summary = (summaryTextField.value ? summaryTextField.value : "Other Activity");
+                obj.entry_date = formattedDate;
+                obj.start_time = currentTime.innerText;
+                // obj.stop_time = "00:00:00";
+                entries.push(obj);
+
+                if(entries.length > 1){
+                    const secondLastIndex = entries.length - 2;
+                    // alert(secondLastIndex);
+                    entries[secondLastIndex].stop_time = currentTime.innerText;
+                }
+
+                localStorage.setItem("entries", JSON.stringify(entries));
+
+                setDataSet(weeklyDataSet, entries);
+
+            } else {
+
+                // entries = (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
+                obj.summary = (summaryTextField.value ? summaryTextField.value : "Other Activity");
+                obj.entry_date = formattedDate;
+                obj.start_time = currentTime.innerText;
+                // obj.stop_time = "00:00:00";
+                console.log(obj);
+                entries.push(obj);
+                localStorage.setItem("entries", JSON.stringify(entries));
+
+                setDataSet(weeklyDataSet, entries);
+            }
+
+
+        });
+        /* End Button Click Listener */
+
+
+        /* Render DATASET */
+        const setDataSet = (dataSetId, data) => {
+
+            dataSetId.innerHTML = "";
+            var data_id = "";
+
+            if (data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                     let obj = data[i];
+                     dataSetId.innerHTML += tbleRow(obj, i);
+                     data_id = "tbody-"+i;
+                     document.getElementById(data_id).classList.add("animate");
+                     setTimeout(()=> document.getElementById(data_id).classList.add("animate"), i*500);
+                     totalMinutes += data[i].difference;
+                }
+
+                document.getElementById("total-minutes").innerText = totalMinutes;
+               // setTimeout(()=> document.getElementById(data_id).classList.add("animate"), i*500);
+            }
+            
+        }
+
+        const tbleRow = (obj, i) => {
+
+            data_id = "tbody-"+i;
+
+            const duration = obj.start_time + (obj.stop_time != null ? " - " : "") + obj.stop_time;
+            const start_time = "2022-11-26 " + obj.start_time;
+            const end_time = "2022-11-26 " + obj.stop_time;
+            // console.log(start_time);
+            // console.log(end_time);
+            if(entries.length > 1 && obj.start_time != "" && obj.stop_time != "") {
+                obj.difference = getDifference(start_time, end_time).minutes;
+            }
+            return "<tbody id='"+data_id+"'>" +
+                "<tr>" +
                 "<td>" + obj.summary + "</td>" +
                 "<td>" + obj.status + "</td>" +
                 "<td>" + obj.entry_date + "</td>" +
                 "<td>" + obj.start_time + "</td>" +
+                "<td>" + duration + "</td>" +
                 "<td>" + obj.difference + "</td>" +
                 "</tr>" +
-             "</tbody>"
- }
- /* Render DATASET */
+                "</tbody>"
+        }
+        /* Render DATASET */
 
-  /* Stop Button Click Listener */
-  stopBtn.addEventListener("click", () => {
-        clearInterval(interval);
-        
-        startBtn.classList.add("d-inline-block");
-        startBtn.classList.remove("d-none");
-        stopBtn.classList.add("d-none");
-        stopBtn.classList.remove("d-inline-block");
+        /* Stop Button Click Listener */
+        stopBtn.addEventListener("click", () => {
+            clearInterval(interval);
 
-        entries = JSON.parse(localStorage.getItem("entries"));
-        console.log(entries);
+            startBtn.classList.add("d-inline-block");
+            startBtn.classList.remove("d-none");
+            stopBtn.classList.add("d-none");
+            stopBtn.classList.remove("d-inline-block");
 
-        currentTime.innerText="00:00:00";
-    });
- /* Stop Button Click Listener */
+            entries = (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
 
-  window.addEventListener('DOMContentLoaded', () => {
+            if (entries) {
 
-    
+                obj.summary = (summaryTextField.value ? summaryTextField.value : "Other Activity");
+                obj.status = "STOPPED",
+                obj.entry_date = formattedDate;
+                obj.start_time = currentTime.innerText;
+                // obj.stop_time = currentTime.innerText;
+                entries.push(obj);
 
-    window.electron.getUser().then((user) => {
-      document.getElementById("username").innerHTML = `${user.profile.firstName} ${user.profile.lastName}`
-    });
-  });
+                if(entries.length > 0){
+                    const secondLastIndex = entries.length - 2;
+                    // alert(secondLastIndex);
+                    entries[secondLastIndex].stop_time = currentTime.innerText;
+                }
 
-  document.getElementById('logout-button').addEventListener('click', () => {
-    window.electron.logout();
-  });
-</script>
+                localStorage.setItem("entries", JSON.stringify(entries));
+
+                setDataSet(weeklyDataSet, entries);
+
+            } else {
+
+                //entries = (localStorage.getItem("entries") !== null ? JSON.parse(localStorage.getItem("entries")) : []);
+                obj.summary = (summaryTextField.value ? summaryTextField.value : "Other Activity");
+                obj.status = "STOPPED",
+                obj.entry_date = formattedDate;
+                obj.start_time = "00:00:00";
+                obj.stop_time = currentTime.innerText;
+                entries.push(obj);
+                localStorage.setItem("entries", JSON.stringify(entries));
+
+                setDataSet(weeklyDataSet, entries);
+            }
+
+            currentTime.innerText = "00:00:00";
+        });
+        /* Stop Button Click Listener */
+
+        window.addEventListener('DOMContentLoaded', () => {
+
+            if(storage !== null) {
+                entries = JSON.parse(localStorage.getItem("entries"));
+                setDataSet(weeklyDataSet, entries);
+
+                const lastIndex = entries.length - 1;
+
+                if(entries[lastIndex].status == "STARTED") {
+                    runTimer();
+                    interval = setInterval(runTimer, 1000);
+                    startBtn.classList.add("d-none");
+                    stopBtn.classList.remove("d-none");
+                    stopBtn.classList.add("inline-block");
+                }
+                
+
+                
+
+            }
+
+            window.electron.getUser().then((user) => {
+                document.getElementById("username").innerHTML = `${user.profile.firstName} ${user.profile.lastName}`
+            });
+        });
+
+        const getDifference = (start_time, end_time) => {
+            var today = new Date(start_time);
+            var Christmas = new Date(end_time);
+            var diffMs = (Christmas - today); // milliseconds between now & Christmas
+            var diffDays = Math.floor(diffMs / 86400000); // days
+            var diffHrs = Math.floor((diffMs % 86400000) / 3600000); // hours
+            var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
+            return {
+                days: diffDays,
+                hourse: diffHrs,
+                minutes: diffMins,
+                ms: diffMs
+            }
+            //console.log(diffDays + " days, " + diffHrs + " hours, " + diffMins + " minutes until Christmas =)");
+        }
+
+        document.getElementById('logout-button').addEventListener('click', () => {
+            window.electron.logout();
+        });
+    </script>
 </body>
+
 </html>
