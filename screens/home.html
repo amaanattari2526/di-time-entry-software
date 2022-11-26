@@ -109,6 +109,7 @@
                 stop_time: "",
                 difference: 0
             },
+            totalHours = 0,
             totalMinutes = 0,
             storage = (localStorage.getItem('entries') !== null);
 
@@ -209,8 +210,14 @@
                      setTimeout(()=> document.getElementById(data_id).classList.add("animate"), i*500);
                      totalMinutes += data[i].difference;
                 }
-
-                document.getElementById("total-minutes").innerText = totalMinutes;
+                    
+                // alert(totalMinutes);
+                var totalHoursMinutes = toHoursAndMinutes(parseInt(totalMinutes));
+                // alert(totalHoursMinutes.hours);
+                let hours_ = totalHoursMinutes.hours > 1 ? totalHoursMinutes.hours + " Hours " : totalHoursMinutes.hours + " Hour ";
+                let minutes_ = totalHoursMinutes.minutes > 1 ? totalHoursMinutes.minutes + " Mins " : "0 Min "
+                document.getElementById("total-hours").innerText = hours_;
+                document.getElementById("total-minutes").innerText = minutes_;
                // setTimeout(()=> document.getElementById(data_id).classList.add("animate"), i*500);
             }
             
@@ -219,6 +226,9 @@
         const tbleRow = (obj, i) => {
 
             data_id = "tbody-"+i;
+            let badge_bg_class;
+
+            badge_bg_class = (obj.status == "STARTED" ? 'bg-success' : 'bg-danger');
 
             const duration = obj.start_time + (obj.stop_time != null ? " - " : "") + obj.stop_time;
             const start_time = "2022-11-26 " + obj.start_time;
@@ -231,7 +241,7 @@
             return "<tbody id='"+data_id+"'>" +
                 "<tr>" +
                 "<td>" + obj.summary + "</td>" +
-                "<td>" + obj.status + "</td>" +
+                "<td>  <span class='badge "+badge_bg_class+" '> " + obj.status + " </span> </td>" +
                 "<td>" + obj.entry_date + "</td>" +
                 "<td>" + obj.start_time + "</td>" +
                 "<td>" + duration + "</td>" +
@@ -288,6 +298,17 @@
             currentTime.innerText = "00:00:00";
         });
         /* Stop Button Click Listener */
+
+        const toHoursAndMinutes = (totalMinutes) => {
+            let minutes;
+            let hours;
+
+            if(totalMinutes >= 60) {
+                hours = Math.floor(totalMinutes / 60);
+                minutes = totalMinutes - 60;
+            }
+            return { "hours": hours, "minutes": minutes };
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
 
